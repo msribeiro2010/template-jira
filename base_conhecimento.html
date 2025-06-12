@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base de Conhecimento | NAPJe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bc-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .bc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .bc-title-section {
+            flex: 1;
+        }
+        
+        .bc-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .bc-search-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .bc-search-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c5aa0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .bc-search-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .bc-search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .bc-search-input:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+        }
+        
+        .bc-search-btn {
+            padding: 12px 20px;
+            background: #2c5aa0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .bc-search-btn:hover {
+            background: #1e4080;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(44, 90, 160, 0.3);
+        }
+        
+        .bc-article {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+        
+        .bc-article:hover {
+            box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        
+        .bc-article-header {
+            cursor: pointer;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            transition: all 0.3s ease;
+            gap: 15px;
+        }
+        
+        .bc-article-header:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+        
+        .bc-article-left {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .bc-article-title {
+            margin: 0 0 8px 0;
+            font-size: 1.2rem;
+            color: #2c5aa0;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        
+        .bc-meta {
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .bc-article-content {
+            display: none;
+            padding: 24px;
+            background: #fafbfc;
+            border-top: 1px solid #e9ecef;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .bc-content-text {
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .bc-tags {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .bc-tag {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e4080 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(44, 90, 160, 0.2);
+        }
+        
+        .bc-arrow {
+            font-size: 1.3rem;
+            color: #2c5aa0;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+        }
+        
+        .bc-article.active .bc-arrow {
+            transform: rotate(90deg);
+            color: #1e4080;
+        }
+        
+        .bc-stats {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .bc-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .bc-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+        
+        .bc-empty i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .loading i {
+            font-size: 2rem;
+            color: #2c5aa0;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 1000px;
+                padding-top: 24px;
+                padding-bottom: 24px;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .loading i {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .bc-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .bc-actions {
+                justify-content: space-between;
+            }
+            
+            .bc-search-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .bc-search-input {
+                min-width: auto;
+            }
+            
+            .bc-article-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            
+            .bc-meta {
+                justify-content: space-between;
+            }
+            
+            .bc-arrow {
+                align-self: center;
+                margin: 10px 0 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <div class="bc-container">
+                <!-- Header com Logo e Ações -->
+                <div class="bc-header">
+                    <div class="bc-title-section">
+                        <div class="logo-mini">
+                            <i class="fas fa-cogs"></i>
+                            <div class="logo-text">
+                                <h1>NAPJe</h1>
+                                <span class="subtitle">Base de Conhecimento</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bc-actions">
+                        <a href="cadastrar_artigo.html" class="btn-primary">
+                            <i class="fas fa-plus"></i> Novo Artigo
+                        </a>
+                        <a href="index.html" class="btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Container de Busca -->
+                <div class="bc-search-container">
+                    <div class="bc-search-title">
+                        <i class="fas fa-search"></i>
+                        Buscar Artigos
+                    </div>
+                    <div class="bc-search-row">
+                        <input type="text" 
+                               id="buscaBC" 
+                               class="bc-search-input"
+                               placeholder="Digite palavras-chave, termo ou título do artigo...">
+                        <button id="btnBuscarBC" class="bc-search-btn">
+                            <i class="fas fa-search"></i>
+                            Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estatísticas (será populado via JS) -->
+                <div id="bc-stats" class="bc-stats" style="display: none;">
+                    <div class="bc-stat">
+                        <i class="fas fa-file-alt"></i>
+                        <span id="total-artigos">0 artigos</span>
+                    </div>
+                    <div class="bc-stat">
+                        <i class="fas fa-clock"></i>
+                        <span>Última atualização: hoje</span>
+                    </div>
+                </div>
+
+                <!-- Resultados -->
+                <div id="resultadosBC"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+    // Configuração da API Supabase
+    const SUPABASE_URL = 'https://wyorhicllbdoxxdnuefa.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5b3JoaWNsbGJkb3h4ZG51ZWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3NTUyODksImV4cCI6MjA2NTMzMTI4OX0.LF-_XziJ399K0wgwbttDfKP7n-EvFkOA8hp5x5wNkBA';
+    
+    // Função para fazer requests para a API Supabase
+    async function supabaseRequest(endpoint, options = {}) {
+        const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+        const headers = {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+            ...options.headers
+        };
+        
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.json();
+    }
+    
+    function renderArtigos(artigos) {
+        const div = document.getElementById('resultadosBC');
+        const statsDiv = document.getElementById('bc-stats');
+        const totalArtigosSpan = document.getElementById('total-artigos');
+        
+        if (!artigos || artigos.length === 0) {
+            div.innerHTML = `
+                <div class="bc-empty">
+                    <i class="fas fa-search"></i>
+                    <h3>Nenhum artigo encontrado</h3>
+                    <p>Tente usar outros termos de busca ou navegue por todos os artigos.</p>
+                </div>
+            `;
+            statsDiv.style.display = 'none';
+            return;
+        }
+        
+        // Mostrar estatísticas
+        statsDiv.style.display = 'flex';
+        totalArtigosSpan.textContent = `${artigos.length} ${artigos.length === 1 ? 'artigo' : 'artigos'}`;
+        
+        div.innerHTML = artigos.map((a, idx) => `
+            <div class="bc-article" data-idx="${idx}">
+                <div class="bc-article-header">
+                    <div class="bc-article-left">
+                        <div class="bc-article-title">${a.titulo}</div>
+                        <div class="bc-meta">
+                            ${a.autor ? `<span><i class="fas fa-user"></i> ${a.autor}</span>` : ''}
+                            <span><i class="fas fa-calendar"></i> ${new Date(a.created_at).toLocaleDateString('pt-BR')}</span>
+                            ${a.tags && a.tags.length ? `<span><i class="fas fa-tags"></i> ${a.tags.length} tags</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="bc-arrow"><i class="fas fa-chevron-right"></i></div>
+                </div>
+                <div class="bc-article-content" style="display:none;">
+                    <div class="bc-content-text">${a.conteudo.replace(/\n/g,'<br>')}</div>
+                    ${a.tags && a.tags.length ? `
+                        <div class="bc-tags">
+                            ${a.tags.map(t => `<span class="bc-tag">${t}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `).join('');
+        
+        // Acordeão melhorado
+        div.querySelectorAll('.bc-article-header').forEach(header => {
+            header.onclick = function() {
+                const article = this.parentElement;
+                const content = article.querySelector('.bc-article-content');
+                const arrow = article.querySelector('.bc-arrow');
+                const isOpen = content.style.display === 'block';
+                
+                // Fecha todos os outros artigos
+                div.querySelectorAll('.bc-article').forEach(otherArticle => {
+                    if (otherArticle !== article) {
+                        const otherContent = otherArticle.querySelector('.bc-article-content');
+                        const otherArrow = otherArticle.querySelector('.bc-arrow');
+                        otherContent.style.display = 'none';
+                        otherArrow.style.transform = '';
+                        otherArticle.classList.remove('active');
+                    }
+                });
+                
+                // Alterna o artigo atual
+                if (isOpen) {
+                    content.style.display = 'none';
+                    arrow.style.transform = '';
+                    article.classList.remove('active');
+                } else {
+                    content.style.display = 'block';
+                    arrow.style.transform = 'rotate(90deg)';
+                    article.classList.add('active');
+                }
+            };
+        });
+    }
+
+    async function buscar(termo) {
+        console.log('Iniciando busca com termo:', termo);
+        const div = document.getElementById('resultadosBC');
+        
+        if (!div) {
+            console.error('Elemento resultadosBC não encontrado!');
+            return;
+        }
+        
+        div.innerHTML = `
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                Buscando artigos...
+            </div>
+        `;
+        
+        try {
+            console.log('Conectando com Supabase...');
+            let endpoint;
+            
+            if (termo && termo.length > 1) {
+                console.log('Buscando por termo:', termo);
+                // Busca por termo
+                endpoint = `base_conhecimento?select=*&titulo=ilike.%25${encodeURIComponent(termo)}%25&ativo=eq.true&order=created_at.desc`;
+            } else {
+                console.log('Buscando artigos recentes...');
+                // Busca artigos recentes
+                endpoint = `base_conhecimento?select=*&ativo=eq.true&order=created_at.desc&limit=20`;
+            }
+            
+            const artigos = await supabaseRequest(endpoint);
+            console.log('Artigos encontrados:', artigos.length);
+            renderArtigos(artigos);
+            
+        } catch (error) {
+            console.error('Erro na busca:', error);
+            div.innerHTML = '<div style="text-align:center;padding:20px;color:red;">Erro ao conectar com a base de dados: ' + error.message + '</div>';
+        }
+    }
+
+    // Variável para controle de debounce
+    let searchTimeout;
+    
+    // Função de busca em tempo real
+    function buscarTempoReal() {
+        const termo = document.getElementById('buscaBC').value.trim();
+        
+        // Cancelar busca anterior se ainda estiver pendente
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        // Definir novo timeout para busca (300ms após parar de digitar)
+        searchTimeout = setTimeout(() => {
+            console.log('Busca em tempo real:', termo);
+            buscar(termo);
+        }, 300);
+    }
+    
+    // Event listeners
+    document.getElementById('btnBuscarBC').onclick = () => {
+        const termo = document.getElementById('buscaBC').value.trim();
+        // Cancelar timeout se o usuário clicar no botão
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        buscar(termo);
+    };
+    
+    // Busca em tempo real conforme digita
+    document.getElementById('buscaBC').addEventListener('input', buscarTempoReal);
+    
+    // Busca ao pressionar Enter
+    document.getElementById('buscaBC').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // Cancelar timeout e buscar imediatamente
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            buscar(this.value.trim());
+        }
+    });
+    
+    // Carregar artigos recentes ao abrir a página
+    window.addEventListener('load', function() {
+        console.log('Página carregada, iniciando busca...');
+        buscar('');
+    });
+    
+    // Fallback caso DOMContentLoaded não funcione
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded, iniciando busca...');
+            buscar('');
+        });
+    } else {
+        console.log('DOM já carregado, iniciando busca...');
+        buscar('');
+    }
+    </script>
+</body>
+</html> 

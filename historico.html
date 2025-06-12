@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAPJe - Histórico de JIRAs</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .history-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .ticket-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .ticket-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+        
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .ticket-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c5aa0;
+        }
+        
+        .ticket-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .ticket-details {
+            margin-top: 10px;
+        }
+        
+        .ticket-details p {
+            margin: 5px 0;
+        }
+        
+        .ticket-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .tag-incidente { background-color: #ffecb3; }
+        .tag-defeito { background-color: #ffcdd2; }
+        .tag-melhoria { background-color: #c8e6c9; }
+        .tag-duvida { background-color: #e1f5fe; }
+        
+        .urgencia-4 { color: #2196f3; }
+        .urgencia-5 { color: #f44336; font-weight: bold; }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <div class="history-container">
+                <div class="form-header">
+                    <div class="logo-mini">
+                        <i class="fas fa-cogs"></i>
+                        <div class="logo-text">
+                            <h1>NAPJe</h1>
+                            <span class="subtitle">Núcleo de Apoio PJe</span>
+                        </div>
+                    </div>
+                    <h2>Histórico de JIRAs Gerados</h2>
+                </div>
+                
+                <div class="nav-buttons">
+                    <a href="index.html" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Voltar para o Formulário
+                    </a>
+                </div>
+                
+                <div id="loading" class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Carregando histórico...
+                </div>
+                
+                <div id="ticketList" class="ticket-list">
+                    <!-- Os tickets serão carregados aqui -->
+                </div>
+                
+                <div id="noResults" class="no-results" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    Nenhum JIRA encontrado no histórico.
+                </div>
+            </div>
+        </main>
+        
+        <!-- Modal de visualização de ticket -->
+        <div id="viewTicketModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Detalhes do JIRA</h3>
+                <div id="viewTicketContent"></div>
+                <div class="form-actions">
+                    <button type="button" id="copiarJiraDetalhes" class="btn-primary">
+                        <i class="fas fa-copy"></i>
+                        Copiar para Área de Transferência
+                    </button>
+                    <button type="button" class="btn-secondary" id="fecharDetalhes">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getJiraTickets, getJiraTicketById } from './supabase.js';
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            const ticketList = document.getElementById('ticketList');
+            const loading = document.getElementById('loading');
+            const noResults = document.getElementById('noResults');
+            const viewTicketModal = document.getElementById('viewTicketModal');
+            const viewTicketContent = document.getElementById('viewTicketContent');
+            
+            // Fechar modal
+            document.querySelectorAll('.close').forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+            
+            document.getElementById('fecharDetalhes').addEventListener('click', function() {
+                viewTicketModal.style.display = 'none';
+            });
+            
+            // Fechar modal clicando fora
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+            
+            // Copiar JIRA dos detalhes
+            document.getElementById('copiarJiraDetalhes').addEventListener('click', function() {
+                const content = viewTicketContent.textContent;
+                navigator.clipboard.writeText(content).then(() => {
+                    alert('JIRA copiado para a área de transferência!');
+                }).catch(err => {
+                    console.error('Erro ao copiar: ', err);
+                });
+            });
+            
+            // Carregar histórico
+            try {
+                const result = await getJiraTickets();
+                
+                loading.style.display = 'none';
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    renderTickets(result.data);
+                } else {
+                    noResults.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+                loading.innerHTML = 'Erro ao carregar histórico. Tente novamente mais tarde.';
+            }
+            
+            function renderTickets(tickets) {
+                ticketList.innerHTML = '';
+                
+                tickets.forEach(ticket => {
+                    const card = document.createElement('div');
+                    card.className = 'ticket-card';
+                    card.dataset.id = ticket.id;
+                    
+                    const date = new Date(ticket.created_at);
+                    const formattedDate = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR');
+                    
+                    card.innerHTML = `
+                        <div class="ticket-header">
+                            <div class="ticket-title">${ticket.resumo}</div>
+                            <div class="ticket-date">${formattedDate}</div>
+                        </div>
+                        <div class="ticket-details">
+                            <p><strong>Chamado:</strong> ${ticket.chamadoNapje}</p>
+                            <p><strong>Servidor:</strong> ${ticket.servidorResponsavel}</p>
+                            <p>
+                                <span class="ticket-tag tag-${ticket.tipoPendencia.toLowerCase()}">${ticket.tipoPendencia}</span>
+                                <span class="urgencia-${ticket.urgencia}">Urgência ${ticket.urgencia}</span>
+                            </p>
+                            <p><strong>Ambiente:</strong> ${ticket.ambiente}</p>
+                            <p><strong>Usuário:</strong> ${ticket.nomeCompleto}</p>
+                        </div>
+                    `;
+                    
+                    card.addEventListener('click', () => viewTicket(ticket.id));
+                    ticketList.appendChild(card);
+                });
+            }
+            
+            async function viewTicket(id) {
+                viewTicketContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
+                viewTicketModal.style.display = 'block';
+                
+                try {
+                    const result = await getJiraTicketById(id);
+                    
+                    if (result.success && result.data) {
+                        const ticket = result.data;
+                        const formattedContent = formatTicketContent(ticket);
+                        viewTicketContent.innerHTML = `<pre>${formattedContent}</pre>`;
+                    } else {
+                        viewTicketContent.innerHTML = '<p>Erro ao carregar detalhes do JIRA.</p>';
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar detalhes do ticket:', error);
+                    viewTicketContent.innerHTML = '<p>Erro ao carregar detalhes do JIRA.</p>';
+                }
+            }
+            
+            function formatTicketContent(ticket) {
+                return `=== JIRA GERADO PELO SISTEMA NAPJe ===
+Data/Hora: ${new Date(ticket.created_at).toLocaleString('pt-BR')}
+
+DESCRIÇÃO DO PROBLEMA:
+${ticket.notas}
+
+CHAMADO DO NAPJe: ${ticket.chamadoNapje}
+SERVIDOR RESPONSÁVEL: ${ticket.servidorResponsavel}
+
+TIPO DE PENDÊNCIA: ${ticket.tipoPendencia}
+RESUMO: ${ticket.resumo}
+VERSÃO: ${ticket.versao}
+URGÊNCIA: ${ticket.urgencia}
+
+SUBSISTEMA: ${ticket.subsistema}
+AMBIENTE: ${ticket.ambiente}
+
+PERFIL DO USUÁRIO: ${ticket.nomeCompleto}/${ticket.perfil}/${ticket.cpf}
+
+ÓRGÃO JULGADOR: ${ticket.ojSelect || ''}
+
+NÚMEROS DOS PROCESSOS:
+${ticket.numeroProcessos || ''}
+
+=== FIM DO JIRA ===`;
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,26 @@
+{
+  "type": "module",
+  "name": "napje-jira-generator",
+  "version": "1.0.0",
+  "description": "Sistema para automatizar a criação de chamados JIRA para a Sustentação do PJe do TRT15",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "jira",
+    "pje",
+    "trt15",
+    "supabase"
+  ],
+  "author": "TRT15",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 

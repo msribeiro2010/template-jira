@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAPJe - Sistema de Criação de JIRA</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <main class="main-content">
+            <div class="form-container">
+                <div class="form-header">
+                    <div class="logo-mini">
+                        <i class="fas fa-cogs"></i>
+                        <div class="logo-text">
+                            <h1>NAPJe</h1>
+                            <span class="subtitle">Núcleo de Apoio PJe</span>
+                        </div>
+                    </div>
+                    <h2>Template de Criação de JIRA para Sustentação do PJe</h2>
+                    <button id="historicoBtn" class="btn-secondary">
+                        <i class="fas fa-history"></i>
+                        Histórico
+                    </button>
+                </div>
+                
+                <!-- Base de Conhecimento -->
+                <section class="base-conhecimento">
+                    <h2>Base de Conhecimento</h2>
+                    <p>Acesse nossa base de conhecimento com soluções para problemas comuns do PJe.</p>
+                    <a href="base_conhecimento.html" class="btn-secondary">Ver todos os artigos</a>
+                </section>
+
+                <form id="jiraForm" class="jira-form">
+                    <div class="form-group">
+                        <label for="notas">Notas (Descrição do problema) *</label>
+                        <textarea id="notas" name="notas" rows="6" required placeholder="Descreva detalhadamente o problema encontrado..."></textarea>
+                        <button type="button" id="btnSugestaoIA" class="btn-secondary" style="margin-top:5px;">Sugestão com IA</button>
+                        <span id="iaStatus" style="font-size:0.9em;color:#888;margin-left:10px;"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chamadoNapje">Chamado do NAPJe que originou a issue *</label>
+                            <input type="text" id="chamadoNapje" name="chamadoNapje" required placeholder="Número do chamado interno">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="servidorResponsavel">Servidor responsável pela abertura da issue *</label>
+                            <input type="text" id="servidorResponsavel" name="servidorResponsavel" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipoPendencia">Tipo de Pendência *</label>
+                            <select id="tipoPendencia" name="tipoPendencia" required>
+                                <option value="">Selecione...</option>
+                                <option value="Incidente">Incidente</option>
+                                <option value="Defeito">Defeito</option>
+                                <option value="Melhoria">Melhoria</option>
+                                <option value="Dúvida">Dúvida</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="resumo">Resumo *</label>
+                            <div class="resumo-container">
+                                <select id="resumo" name="resumo" required>
+                                    <option value="">Selecione um assunto...</option>
+                                </select>
+                                <input type="text" id="resumoInput" name="resumoInput" placeholder="Ou digite para buscar..." style="display:none;">
+                                <button type="button" id="toggleBuscaBtn" class="btn-toggle-busca" title="Alternar entre busca e seleção">🔍</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="versao">Versão *</label>
+                            <input type="text" id="versao" name="versao" value="2.13.6" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="urgencia">Urgência *</label>
+                            <select id="urgencia" name="urgencia" required>
+                                <option value="">Selecione...</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="subsistema">Subsistema *</label>
+                            <select id="subsistema" name="subsistema" required>
+                                <option value="">Selecione...</option>
+                                <option value="1º Grau">1º Grau</option>
+                                <option value="2º Grau">2º Grau</option>
+                                <option value="1º e 2º Graus">1º e 2º Graus</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ambiente">Ambiente *</label>
+                            <select id="ambiente" name="ambiente" required>
+                                <option value="">Selecione...</option>
+                                <option value="Produção">Produção</option>
+                                <option value="Incidentes">Incidentes</option>
+                                <option value="Homologação">Homologação</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="numeroProcessos">Número dos processos</label>
+                            <input type="text" id="numeroProcessos" name="numeroProcessos" placeholder="Ex: 0010726-04.2025.5.15.0070">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ojBusca">Órgão Julgador (OJ)</label>
+                            <div class="oj-container">
+                                <input type="text" id="ojBusca" name="ojBusca" placeholder="Digite para buscar OJ...">
+                                <select id="ojSelect" name="ojSelect" style="display:none;">
+                                    <option value="">Selecione um OJ...</option>
+                                </select>
+                                <button type="button" id="novoOjBtn" class="btn-novo-oj">+ Criar Novo OJ</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="perfil">Perfil/CPF/Nome completo do usuário *</label>
+                        <div class="perfil-container">
+                            <select id="perfil" name="perfil" required>
+                                <option value="">Selecione o perfil...</option>
+                                <option value="Diretor">Diretor</option>
+                                <option value="Assessor">Assessor</option>
+                                <option value="Servidor">Servidor</option>
+                                <option value="Estagiário">Estagiário</option>
+                                <option value="Perito">Perito</option>
+                                <option value="Procurador">Procurador</option>
+                                <option value="Magistrado">Magistrado</option>
+                            </select>
+                            <input type="text" id="nomeCompleto" name="nomeCompleto" placeholder="Nome completo do usuário" required>
+                            <input type="text" id="cpf" name="cpf" placeholder="CPF" required>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-ticket-alt"></i>
+                            Gerar JIRA
+                        </button>
+                        <button type="button" id="limparForm" class="btn-secondary">
+                            <i class="fas fa-eraser"></i>
+                            Limpar Formulário
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- Modal para criar novo OJ -->
+        <div id="novoOjModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Criar Novo Órgão Julgador</h3>
+                <form id="novoOjForm">
+                    <div class="form-group">
+                        <label for="codigoOj">Código</label>
+                        <input type="text" id="codigoOj" name="codigoOj" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nomeOj">Nome do Órgão Julgador</label>
+                        <input type="text" id="nomeOj" name="nomeOj" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Criar</button>
+                        <button type="button" class="btn-secondary" id="cancelarNovoOj">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de resultado -->
+        <div id="resultadoModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>JIRA Gerado com Sucesso!</h3>
+                <button id="toggleJiraAccordion" class="btn-secondary" style="margin-bottom:10px;">Mostrar JIRA</button>
+                <div id="resultadoContent" style="display:none;"></div>
+                <div class="form-actions">
+                    <button type="button" id="copiarJira" class="btn-primary">
+                        <i class="fas fa-copy"></i>
+                        Copiar para Área de Transferência
+                    </button>
+                    <button type="button" class="btn-secondary" id="fecharResultado">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script type="module" src="script.js"></script>
+    <script>
+    // Configuração da API Supabase  
+    const SUPABASE_URL = 'https://wyorhicllbdoxxdnuefa.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5b3JoaWNsbGJkb3h4ZG51ZWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3NTUyODksImV4cCI6MjA2NTMzMTI4OX0.LF-_XziJ399K0wgwbttDfKP7n-EvFkOA8hp5x5wNkBA';
+    
+    // Função para fazer requests para a API Supabase
+    async function supabaseRequest(endpoint, options = {}) {
+        const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+        const headers = {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+            ...options.headers
+        };
+        
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.json();
+    }
+    
+    // Funções da base de conhecimento
+    async function buscarArtigosRecentesBaseConhecimento(limit = 5) {
+        try {
+            const artigos = await supabaseRequest(`base_conhecimento?select=*&ativo=eq.true&order=created_at.desc&limit=${limit}`);
+            return { success: true, data: artigos };
+        } catch (error) {
+            console.error('Erro ao buscar artigos recentes:', error);
+            return { success: false, error };
+        }
+    }
+    
+    async function salvarArtigoBaseConhecimento(artigo) {
+        try {
+            const resultado = await supabaseRequest('base_conhecimento', {
+                method: 'POST',
+                body: JSON.stringify(artigo)
+            });
+            return { success: true, data: resultado };
+        } catch (error) {
+            console.error('Erro ao salvar artigo:', error);
+            return { success: false, error };
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Formulário de cadastro de artigo (se existir na página)
+        const formBC = document.getElementById('formArtigoBC');
+        if (formBC) {
+            formBC.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const titulo = document.getElementById('tituloArtigo').value.trim();
+                const conteudo = document.getElementById('conteudoArtigo').value.trim();
+                const tags = document.getElementById('tagsArtigo').value.split(',').map(t=>t.trim()).filter(Boolean);
+                const autor = document.getElementById('autorArtigo').value.trim();
+                if (!titulo || !conteudo) {
+                    alert('Preencha título e conteúdo!');
+                    return;
+                }
+                const artigo = { titulo, conteudo, autor, tags };
+                const result = await salvarArtigoBaseConhecimento(artigo);
+                if (result.success) {
+                    alert('Artigo salvo com sucesso!');
+                    formBC.reset();
+                    location.reload();
+                } else {
+                    alert('Erro ao salvar artigo.');
+                }
+            });
+        }
+
+        // Accordion do JIRA gerado
+        const toggleJiraBtn = document.getElementById('toggleJiraAccordion');
+        const resultadoContent = document.getElementById('resultadoContent');
+        if (toggleJiraBtn && resultadoContent) {
+            toggleJiraBtn.onclick = function() {
+                if (resultadoContent.style.display === 'block') {
+                    resultadoContent.style.display = 'none';
+                    toggleJiraBtn.textContent = 'Mostrar JIRA';
+                } else {
+                    resultadoContent.style.display = 'block';
+                    toggleJiraBtn.textContent = 'Esconder JIRA';
+                }
+            };
+        }
+    });
+    </script>
+</body>
+</html>
