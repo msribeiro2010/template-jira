@@ -68,11 +68,8 @@
                         <div class="form-group">
                             <label for="resumo">Resumo *</label>
                             <div class="resumo-container">
-                                <select id="resumo" name="resumo" required>
-                                    <option value="">Selecione um assunto...</option>
-                                </select>
-                                <input type="text" id="resumoInput" name="resumoInput" placeholder="Ou digite para buscar..." style="display:none;">
-                                <button type="button" id="toggleBuscaBtn" class="btn-toggle-busca" title="Alternar entre busca e seleção">🔍</button>
+                                <input type="text" id="resumoInput" name="resumo" required placeholder="Digite ou busque o assunto...">
+                                <button type="button" id="toggleBuscaBtn" class="btn-toggle-busca" title="Buscar assunto">🔍</button>
                             </div>
                         </div>
                     </div>
@@ -206,7 +203,585 @@
         </div>
     </div>
 
-    <script src="data.js"></script>
+    <script>
+    // Script inline para garantir funcionamento
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM carregado - script inline');
+
+        const toggleBtn = document.getElementById('toggleBuscaBtn');
+        const resumoInput = document.getElementById('resumoInput');
+
+        console.log('Elementos encontrados:', { toggleBtn, resumoInput });
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Botão clicado!');
+
+                // Remover painel existente
+                const painelExistente = document.getElementById('painelAssuntos');
+                if (painelExistente) {
+                    painelExistente.remove();
+                    toggleBtn.classList.remove('active');
+                    return;
+                }
+
+                // Criar novo painel
+                const painel = document.createElement('div');
+                painel.id = 'painelAssuntos';
+                painel.style.cssText = `
+                    position: absolute;
+                    background: white;
+                    border: 2px solid #2c5aa0;
+                    border-radius: 8px;
+                    padding: 15px;
+                    max-height: 400px;
+                    overflow-y: auto;
+                    z-index: 1000;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    min-width: 450px;
+                    max-width: 600px;
+                `;
+
+                // Carregar TODOS os assuntos do data.js
+                const todosOsAssuntos = [
+                    "Acesso ao Sistema – Erro ao Carregar Painel",
+                    "Acumulador – Consulta de Posição",
+                    "Acumulador – Regularização",
+                    "Acórdão – Erro",
+                    "Advogado – Painel do Advogado / Procurador – Erro",
+                    "Agrupadores – Erro",
+                    "Área de Zoneamento – Erro em Configuração do Oficial de Justiça",
+                    "Assinador não Carrega – Não ativa o botão Entrar",
+                    "Assinatura de Acórdão – Erro",
+                    "Assinatura de Ata – Erro",
+                    "Assuntos da Ação – Competência",
+                    "Assuntos da Ação – Inexistência",
+                    "Ata de Audiência – Erro de Assinatura",
+                    "Ata de Audiência – Erro na Confirmação",
+                    "Ata de Audiência – Erro na Exportação",
+                    "Atualização de Tela",
+                    "Audiência – Pauta – Erro de Designação",
+                    "Audiências – Erro ao Abrir Pauta",
+                    "Audiências – Erro Configuração de Sala",
+                    "Audiências – Pauta Bloqueada – Marcação de Horário",
+                    "Autenticação: Erro ao Consultar Dados",
+                    "Autenticação: Não foi Possível Realizar",
+                    "Atuação – Correção de Parte",
+                    "Atuação – Erro ao Alterar a Classe",
+                    "Baixa ao 1º Grau – Erro",
+                    "Baixa de Documentos – Erro Webservice",
+                    "Baixa para diligência – Erro",
+                    "BNDT – Erro na Inclusão ou Exclusão",
+                    "Cadastro de Advogado – Erro",
+                    "Cadastro de Autoridade",
+                    "Cadastro de Magistrado – Alteração",
+                    "Cadastro de Órgãos Públicos",
+                    "Cadastro de Perito – Erro",
+                    "Cadastro de Pessoa Física – Atualização de Nome",
+                    "Cadastro de Pessoa Física – Erro",
+                    "Cadastro de Pessoa Jurídica – Erro",
+                    "Cadastro de Processo CLE – Erro na Elaboração",
+                    "Cadastro de Procurador – Erro",
+                    "Cadastro de Usuário – Correção de Perfil",
+                    "Cadastro de Usuário – Exclusão de Perfil",
+                    "Calendário",
+                    "Caixas das Árvores de Tarefa – Erro na listagem",
+                    "CEP – Registro Ausente",
+                    "CEP Inexistente na Base dos Correios – Não Encontrado",
+                    "Certidão de Distribuição de Ações Trabalhistas",
+                    "Competência – Classe × Assunto",
+                    "Competência – Órgão Julgador × Competência",
+                    "Configuração de Órgão Julgador",
+                    "Configuração do Sistema – Alteração, Inclusão ou Exclusão",
+                    "Consulta – Alertas em Processos – Erro",
+                    "Consulta Características / Recursos do Sistema",
+                    "Consulta de Processos",
+                    "Controle de prazos – Erro",
+                    "Decisão / Despacho – Erro na Assinatura",
+                    "Defeito em Homologação",
+                    "Defeito em Produção",
+                    "Descrição de Tipo de Parte – Erro – Classe Judicial",
+                    "Distribuição de Processos – Erro",
+                    "Documento – Sem Conteúdo",
+                    "Documento do Processo – Erro ao Abrir",
+                    "Documento do Processo – Erro ao Salvar",
+                    "Documento do Processo – Erro em Assinatura",
+                    "Documento do Processo – Erro no Escaninho",
+                    "Documento do Processo – Sem Assinatura",
+                    "Documento do Processo – Sem Data de Juntada",
+                    "Documentos – Aba Anexar Documentos – Tipos",
+                    "Documentos – Anexos – Sem Vinculação com o Principal",
+                    "Documentos – Exclusão",
+                    "Documentos do Processo – Erro ao Baixar",
+                    "Documentos do Processo – Erro na Atualização",
+                    "Documentos do Processo – Erro no Tipo – Despacho",
+                    "E-Rec – Configuração – Erro",
+                    "EXE-Pje – Erro de Execução",
+                    "GIGS – Erro",
+                    "Habilitação Advogado – Erro",
+                    "Inclusão de CEP",
+                    "JIRA 1º grau – Consulta de Mensagens",
+                    "JIRA 1º grau – Postar Mensagem",
+                    "JIRA 2º grau – Consulta de Mensagens",
+                    "JIRA 2º grau – Postar Mensagem",
+                    "Logs do Sistema – Solicitação",
+                    "MNI – Erro na Assinatura de Documentos",
+                    "Modelos de Documentos – Erro na Exibição / Seleção",
+                    "Movimento – Erro no Registro",
+                    "Nó de Desvio – Erro na Inclusão de Processo",
+                    "Nó de Desvio – Inexistência de Fluxo",
+                    "Painel KZ – Filtros",
+                    "Pauta de Julgamento – Fechamento – Erro",
+                    "Pauta de Julgamento – Inclusão de Processos – Erro",
+                    "Perito – Erro ao Anexar Laudo",
+                    "Perito – Perícia Designada – Processo não Localizado no Painel",
+                    "Pesquisa de Log – 2º Grau",
+                    "Pesquisas – Erro",
+                    "Peticionamento Avulso – Erro",
+                    "PJE – Erro de acesso",
+                    "PJE 2º Grau – Produção – Alteração do Cadastro de Parte",
+                    "PJE 2º Grau – Produção – Alteração Órgãos Julgadores",
+                    "Pje – Cadastro de usuários (Alteração ou Cadastramento de Localização, Visibilidade e Papel)",
+                    "Pje-Calc – Erro na Execução",
+                    "Pje-JT – BugFix 1º grau – Atualização",
+                    "Pje-JT – BugFix 2º grau – Atualização",
+                    "Pje-JT – Homologação 1º grau – Atualização de Versão",
+                    "Pje-JT – Homologação 2º grau – Atualização de Versão",
+                    "Pje-JT – Incidentes – Atualização de dados/versão",
+                    "Pje-JT – Produção 1º grau – Atualização de Versão",
+                    "Pje-JT – Produção 2º grau – Atualização de Versão",
+                    "Pje-JT – Treinamento 1º grau – Copiar dados/versão da produção",
+                    "Pje-JT – Treinamento 1º grau – Guardar cópia (fazer backup)",
+                    "Pje-JT – Treinamento 1º grau – Restaurar cópia (voltar backup)",
+                    "Pje-JT – Treinamento 2º grau – Copiar dados/versão da produção",
+                    "Pje-JT – Treinamento 2º grau – Guardar cópia (fazer backup)",
+                    "Pje-JT – Treinamento 2º grau – Restaurar cópia (voltar backup)",
+                    "Plantonista – Exclusão de Magistrados do OJ",
+                    "Plantonista – Usuário Sem Visibilidade",
+                    "Prazo em Aberto – Erro",
+                    "Prazo em Aberto – Erro ao Encerrar Expediente",
+                    "Processo – Bloqueado",
+                    "Processo – CHIPS – Erro de Registro",
+                    "Processo – Consulta a Dados do Processo",
+                    "Processo – Consulta – Erro ao Abrir",
+                    "Processo – Erro na Autuação",
+                    "Processo – Erro na Distribuição – Ausência de Petição Inicial",
+                    "Processo – Erro na Distribuição – Processo sem Número",
+                    "Processo – Localização – Não Encontrado",
+                    "Processo – Movimentos – Regularização ou Inclusão",
+                    "Processo – Registro de Valores – Correção de Erro",
+                    "PUSH – Erro",
+                    "Redistribuição – Documento Não Assinado",
+                    "Redistribuição – Erro",
+                    "Registros – Erro",
+                    "Remessa ao 2º Grau – Erro",
+                    "Remessa ao TST – Erro",
+                    "Remessa ao TST – Erro na Elaboração da Certidão de Remessa",
+                    "Retificação de Autuação – Erro",
+                    "Revisor – Erro ao Encaminhar",
+                    "SAO – Erro na Emissão de Relatório",
+                    "Sentença – Erro em Assinatura",
+                    "Sentença – Registro de Solução – Erro na Inclusão",
+                    "Sentença – Resultados – Alteração dos Dados",
+                    "SIF – Erro de Acesso / Execução",
+                    "SISCONDJ – Erro de Acesso / Execução",
+                    "Sistema – Correção / Inclusão de Dados",
+                    "Subcaixas – Problemas com Manutenção",
+                    "Tarefa – Análise de Dependência",
+                    "Tarefa – Apreciar Petição – Erro",
+                    "Tarefa – Arquivamento – Erro",
+                    "Tarefa – Comunicação de Ato – Erro na Assinatura",
+                    "Tarefa – Comunicação de Ato – Erro na Execução",
+                    "Tarefa – Conclusão ao Magistrado",
+                    "Tarefa – Conversão em Diligência – Erro na Movimentação",
+                    "Tarefa – Desarquivar – Erro",
+                    "Tarefa – Erro de fase",
+                    "Tarefa – Erro de Fluxo",
+                    "Tarefa – Erro de Movimentação",
+                    "Tarefa – Erro na Abertura",
+                    "Tarefa – Erro na Assinatura do Documento",
+                    "Tarefa – Erro na Execução – Impressão de Expedientes",
+                    "Tarefa – Erro na Execução – Registro de Depósito / Custas",
+                    "Tarefa – Erro no Envio de Publicação DEJT",
+                    "Tarefa – Oficial de Justiça – Erro na Execução",
+                    "Tarefa – Processo Preso em Publicar DJe",
+                    "Tarefa – Sem Opções de Tarefa",
+                    "Tarefa – Trânsito em Julgado",
+                    "Tarefas – Erro de fase",
+                    "Tarefas – Sub Caixas",
+                    "Timeline – Erro na Exibição de Documentos",
+                    "Unificação de cadastros de órgãos públicos – Erro",
+                    "Usuário – Acesso Bloqueado – Solicita Desbloqueio",
+                    "Usuário – Erro de Acesso ao Sistema",
+                    "Usuário – Recursos do Sistema – Erro de Acesso ou Falta de Autorização",
+                    "Variáveis – Erro",
+                    "Variáveis de Documentos – Erro",
+                    "Votação Antecipada – Erro no Registro",
+                    "Voto – Erro na Inclusão",
+                    "Voto – Sem Visibilidade na Pauta de Julgamento"
+                ];
+
+                // Organizar por categorias para exibição
+                const assuntosPorCategoria = [
+                    {
+                        categoria: "Acesso e Autenticação",
+                        assuntos: [
+                            "Acesso ao Sistema – Erro ao Carregar Painel",
+                            "Autenticação: Erro ao Consultar Dados",
+                            "Autenticação: Não foi Possível Realizar",
+                            "Usuário – Acesso Bloqueado – Solicita Desbloqueio",
+                            "Usuário – Erro de Acesso ao Sistema",
+                            "Usuário – Recursos do Sistema – Erro de Acesso ou Falta de Autorização"
+                        ]
+                    },
+                    {
+                        categoria: "Assinatura e Certificação",
+                        assuntos: [
+                            "Assinador não Carrega – Não ativa o botão Entrar",
+                            "Assinatura de Acórdão – Erro",
+                            "Assinatura de Ata – Erro",
+                            "Ata de Audiência – Erro de Assinatura",
+                            "Decisão / Despacho – Erro na Assinatura",
+                            "Documento do Processo – Erro em Assinatura",
+                            "MNI – Erro na Assinatura de Documentos",
+                            "Sentença – Erro em Assinatura"
+                        ]
+                    },
+                    {
+                        categoria: "Audiências e Pautas",
+                        assuntos: [
+                            "Audiência – Pauta – Erro de Designação",
+                            "Audiências – Erro ao Abrir Pauta",
+                            "Audiências – Erro Configuração de Sala",
+                            "Audiências – Pauta Bloqueada – Marcação de Horário",
+                            "Ata de Audiência – Erro na Confirmação",
+                            "Ata de Audiência – Erro na Exportação",
+                            "Pauta de Julgamento – Fechamento – Erro",
+                            "Pauta de Julgamento – Inclusão de Processos – Erro",
+                            "Timeline – Erro na Exibição de Documentos"
+                        ]
+                    },
+                    {
+                        categoria: "Cadastro e Atualização",
+                        assuntos: [
+                            "Cadastro de Advogado – Erro",
+                            "Cadastro de Autoridade",
+                            "Cadastro de Magistrado – Alteração",
+                            "Cadastro de Órgãos Públicos",
+                            "Cadastro de Perito – Erro",
+                            "Cadastro de Pessoa Física – Atualização de Nome",
+                            "Cadastro de Pessoa Física – Erro",
+                            "Cadastro de Pessoa Jurídica – Erro",
+                            "Cadastro de Processo CLE – Erro na Elaboração",
+                            "Cadastro de Procurador – Erro",
+                            "Cadastro de Usuário – Correção de Perfil",
+                            "Cadastro de Usuário – Exclusão de Perfil"
+                        ]
+                    },
+                    {
+                        categoria: "Documentos e Processos",
+                        assuntos: [
+                            "Documento – Sem Conteúdo",
+                            "Documento do Processo – Erro ao Abrir",
+                            "Documento do Processo – Erro ao Salvar",
+                            "Documento do Processo – Erro no Escaninho",
+                            "Documento do Processo – Sem Assinatura",
+                            "Documento do Processo – Sem Data de Juntada",
+                            "Documentos – Aba Anexar Documentos – Tipos",
+                            "Documentos – Anexos – Sem Vinculação com o Principal",
+                            "Documentos – Exclusão",
+                            "Documentos do Processo – Erro ao Baixar",
+                            "Documentos do Processo – Erro na Atualização",
+                            "Documentos do Processo – Erro no Tipo – Despacho",
+                            "Modelos de Documentos – Erro na Exibição / Seleção",
+                            "Perito – Erro ao Anexar Laudo",
+                            "Perito – Perícia Designada – Processo não Localizado no Painel"
+                        ]
+                    },
+                    {
+                        categoria: "Órgãos Julgadores e Configuração",
+                        assuntos: [
+                            "Área de Zoneamento – Erro em Configuração do Oficial de Justiça",
+                            "Configuração de Órgão Julgador",
+                            "Configuração do Sistema – Alteração, Inclusão ou Exclusão",
+                            "Competência – Classe × Assunto",
+                            "Competência – Órgão Julgador × Competência",
+                            "Unificação de cadastros de órgãos públicos – Erro"
+                        ]
+                    },
+                    {
+                        categoria: "Incidentes, Defeitos e Fluxos",
+                        assuntos: [
+                            "Acórdão – Erro",
+                            "Agrupadores – Erro",
+                            "Atuação – Correção de Parte",
+                            "Atuação – Erro ao Alterar a Classe",
+                            "Baixa ao 1º Grau – Erro",
+                            "Baixa de Documentos – Erro Webservice",
+                            "Baixa para diligência – Erro",
+                            "BNDT – Erro na Inclusão ou Exclusão",
+                            "Defeito em Homologação",
+                            "Defeito em Produção",
+                            "Distribuição de Processos – Erro",
+                            "EXE-Pje – Erro de Execução",
+                            "GIGS – Erro",
+                            "Movimento – Erro no Registro",
+                            "Nó de Desvio – Erro na Inclusão de Processo",
+                            "Nó de Desvio – Inexistência de Fluxo",
+                            "Pesquisas – Erro",
+                            "Pje-Calc – Erro na Execução"
+                        ]
+                    },
+                    {
+                        categoria: "Atualizações e Versões PJe-JT",
+                        assuntos: [
+                            "Pje-JT – BugFix 1º grau – Atualização",
+                            "Pje-JT – BugFix 2º grau – Atualização",
+                            "Pje-JT – Homologação 1º grau – Atualização de Versão",
+                            "Pje-JT – Homologação 2º grau – Atualização de Versão",
+                            "Pje-JT – Incidentes – Atualização de dados/versão",
+                            "Pje-JT – Produção 1º grau – Atualização de Versão",
+                            "Pje-JT – Produção 2º grau – Atualização de Versão",
+                            "Pje-JT – Treinamento 1º grau – Copiar dados/versão da produção",
+                            "Pje-JT – Treinamento 1º grau – Guardar cópia (fazer backup)",
+                            "Pje-JT – Treinamento 1º grau – Restaurar cópia (voltar backup)",
+                            "Pje-JT – Treinamento 2º grau – Copiar dados/versão da produção",
+                            "Pje-JT – Treinamento 2º grau – Guardar cópia (fazer backup)",
+                            "Pje-JT – Treinamento 2º grau – Restaurar cópia (voltar backup)"
+                        ]
+                    },
+                    {
+                        categoria: "Processos e Movimentação",
+                        assuntos: [
+                            "PJE – Erro de acesso",
+                            "PJE 2º Grau – Produção – Alteração do Cadastro de Parte",
+                            "PJE 2º Grau – Produção – Alteração Órgãos Julgadores",
+                            "Peticionamento Avulso – Erro",
+                            "Plantonista – Exclusão de Magistrados do OJ",
+                            "Plantonista – Usuário Sem Visibilidade",
+                            "Prazo em Aberto – Erro",
+                            "Prazo em Aberto – Erro ao Encerrar Expediente",
+                            "Processo – Bloqueado",
+                            "Processo – CHIPS – Erro de Registro",
+                            "Processo – Consulta a Dados do Processo",
+                            "Processo – Consulta – Erro ao Abrir",
+                            "Processo – Erro na Autuação",
+                            "Processo – Erro na Distribuição – Ausência de Petição Inicial",
+                            "Processo – Erro na Distribuição – Processo sem Número",
+                            "Processo – Localização – Não Encontrado",
+                            "Processo – Movimentos – Regularização ou Inclusão",
+                            "Processo – Registro de Valores – Correção de Erro"
+                        ]
+                    },
+                    {
+                        categoria: "Tarefas e Fluxos",
+                        assuntos: [
+                            "Tarefa – Análise de Dependência",
+                            "Tarefa – Apreciar Petição – Erro",
+                            "Tarefa – Arquivamento – Erro",
+                            "Tarefa – Comunicação de Ato – Erro na Assinatura",
+                            "Tarefa – Comunicação de Ato – Erro na Execução",
+                            "Tarefa – Conclusão ao Magistrado",
+                            "Tarefa – Conversão em Diligência – Erro na Movimentação",
+                            "Tarefa – Desarquivar – Erro",
+                            "Tarefa – Erro de fase",
+                            "Tarefa – Erro de Fluxo",
+                            "Tarefa – Erro de Movimentação",
+                            "Tarefa – Erro na Abertura",
+                            "Tarefa – Erro na Assinatura do Documento",
+                            "Tarefa – Erro na Execução – Impressão de Expedientes",
+                            "Tarefa – Erro na Execução – Registro de Depósito / Custas",
+                            "Tarefa – Erro no Envio de Publicação DEJT",
+                            "Tarefa – Oficial de Justiça – Erro na Execução",
+                            "Tarefa – Processo Preso em Publicar DJe",
+                            "Tarefa – Sem Opções de Tarefa",
+                            "Tarefa – Trânsito em Julgado",
+                            "Tarefas – Erro de fase",
+                            "Tarefas – Sub Caixas"
+                        ]
+                    },
+                    {
+                        categoria: "Sistemas e Integrações",
+                        assuntos: [
+                            "PUSH – Erro",
+                            "Revisor – Erro ao Encaminhar",
+                            "Registros – Erro",
+                            "Redistribuição – Documento Não Assinado",
+                            "Redistribuição – Erro",
+                            "Remessa ao 2º Grau – Erro",
+                            "Remessa ao TST – Erro",
+                            "Remessa ao TST – Erro na Elaboração da Certidão de Remessa",
+                            "Retificação de Autuação – Erro",
+                            "SAO – Erro na Emissão de Relatório",
+                            "Sentença – Erro em Assinatura",
+                            "Sentença – Registro de Solução – Erro na Inclusão",
+                            "Sentença – Resultados – Alteração dos Dados",
+                            "SIF – Erro de Acesso / Execução",
+                            "SISCONDJ – Erro de Acesso / Execução",
+                            "Sistema – Correção / Inclusão de Dados",
+                            "Subcaixas – Problemas com Manutenção",
+                            "Variáveis – Erro",
+                            "Variáveis de Documentos – Erro",
+                            "Votação Antecipada – Erro no Registro",
+                            "Voto – Erro na Inclusão",
+                            "Voto – Sem Visibilidade na Pauta de Julgamento"
+                        ]
+                    },
+                    {
+                        categoria: "Outros Assuntos Diversos",
+                        assuntos: [
+                            "Acumulador – Consulta de Posição",
+                            "Acumulador – Regularização",
+                            "Advogado – Painel do Advogado / Procurador – Erro",
+                            "Assuntos da Ação – Competência",
+                            "Assuntos da Ação – Inexistência",
+                            "Atualização de Tela",
+                            "Calendário",
+                            "Caixas das Árvores de Tarefa – Erro na listagem",
+                            "CEP – Registro Ausente",
+                            "CEP Inexistente na Base dos Correios – Não Encontrado",
+                            "Certidão de Distribuição de Ações Trabalhistas",
+                            "Consulta – Alertas em Processos – Erro",
+                            "Consulta Características / Recursos do Sistema",
+                            "Consulta de Processos",
+                            "Controle de prazos – Erro",
+                            "Descrição de Tipo de Parte – Erro – Classe Judicial",
+                            "E-Rec – Configuração – Erro",
+                            "Habilitação Advogado – Erro",
+                            "Inclusão de CEP",
+                            "JIRA 1º grau – Consulta de Mensagens",
+                            "JIRA 1º grau – Postar Mensagem",
+                            "JIRA 2º grau – Consulta de Mensagens",
+                            "JIRA 2º grau – Postar Mensagem",
+                            "Logs do Sistema – Solicitação",
+                            "Painel KZ – Filtros",
+                            "Pesquisa de Log – 2º Grau",
+                            "Pje – Cadastro de usuários (Alteração ou Cadastramento de Localização, Visibilidade e Papel)",
+                            "Timeline – Erro na Exibição de Documentos",
+                            "Unificação de cadastros de órgãos públicos – Erro"
+                        ]
+                    }
+                ];
+
+                // Gerar HTML do painel com todas as categorias
+                let painelHTML = `
+                    <div style="font-weight: bold; color: #2c5aa0; margin-bottom: 10px; font-size: 1.1rem;">Selecione um assunto:</div>
+                    <input type="text" id="filtroAssuntos" placeholder="Digite para filtrar assuntos..."
+                           style="width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem;"
+                           onkeyup="filtrarAssuntos(this.value)">
+                    <div id="listaAssuntos">
+                `;
+
+                assuntosPorCategoria.forEach(grupo => {
+                    painelHTML += `<div style="margin-bottom: 15px;">`;
+                    painelHTML += `<div style="font-weight: bold; color: #2c5aa0; margin-bottom: 8px; font-size: 1rem; border-bottom: 1px solid #e0e6ed; padding-bottom: 4px;">${grupo.categoria}</div>`;
+
+                    grupo.assuntos.forEach(assunto => {
+                        painelHTML += `<div style="margin-bottom: 4px; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; cursor: pointer; border: 1px solid #e0e6ed; font-size: 0.9rem; transition: all 0.2s;"
+                                      onmouseover="this.style.background='#2c5aa0'; this.style.color='white';"
+                                      onmouseout="this.style.background='#f8f9fa'; this.style.color='#333';"
+                                      onclick="selecionarAssunto('${assunto.replace(/'/g, "\\'")}')">${assunto}</div>`;
+                    });
+
+                    painelHTML += `</div>`;
+                });
+
+                painelHTML += `</div>`; // Fechar div listaAssuntos
+
+                painel.innerHTML = painelHTML;
+
+                // Função para filtrar assuntos
+                window.filtrarAssuntos = function(filtro) {
+                    const listaAssuntos = document.getElementById('listaAssuntos');
+                    if (!listaAssuntos) return;
+
+                    let painelFiltradoHTML = '';
+
+                    if (!filtro.trim()) {
+                        // Se não há filtro, mostrar todas as categorias
+                        assuntosPorCategoria.forEach(grupo => {
+                            painelFiltradoHTML += `<div style="margin-bottom: 15px;">`;
+                            painelFiltradoHTML += `<div style="font-weight: bold; color: #2c5aa0; margin-bottom: 8px; font-size: 1rem; border-bottom: 1px solid #e0e6ed; padding-bottom: 4px;">${grupo.categoria}</div>`;
+
+                            grupo.assuntos.forEach(assunto => {
+                                painelFiltradoHTML += `<div style="margin-bottom: 4px; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; cursor: pointer; border: 1px solid #e0e6ed; font-size: 0.9rem; transition: all 0.2s;"
+                                                      onmouseover="this.style.background='#2c5aa0'; this.style.color='white';"
+                                                      onmouseout="this.style.background='#f8f9fa'; this.style.color='#333';"
+                                                      onclick="selecionarAssunto('${assunto.replace(/'/g, "\\'")}')">${assunto}</div>`;
+                            });
+
+                            painelFiltradoHTML += `</div>`;
+                        });
+                    } else {
+                        // Filtrar usando a lista completa de assuntos
+                        const filtroLower = filtro.toLowerCase();
+                        const assuntosFiltrados = todosOsAssuntos.filter(assunto =>
+                            assunto.toLowerCase().includes(filtroLower)
+                        );
+
+                        if (assuntosFiltrados.length > 0) {
+                            painelFiltradoHTML += `<div style="margin-bottom: 15px;">`;
+                            painelFiltradoHTML += `<div style="font-weight: bold; color: #2c5aa0; margin-bottom: 8px; font-size: 1rem;">Resultados encontrados (${assuntosFiltrados.length}):</div>`;
+
+                            assuntosFiltrados.slice(0, 50).forEach(assunto => {
+                                painelFiltradoHTML += `<div style="margin-bottom: 4px; padding: 6px 8px; background: #f8f9fa; border-radius: 4px; cursor: pointer; border: 1px solid #e0e6ed; font-size: 0.9rem; transition: all 0.2s;"
+                                                      onmouseover="this.style.background='#2c5aa0'; this.style.color='white';"
+                                                      onmouseout="this.style.background='#f8f9fa'; this.style.color='#333';"
+                                                      onclick="selecionarAssunto('${assunto.replace(/'/g, "\\'")}')">${assunto}</div>`;
+                            });
+
+                            painelFiltradoHTML += `</div>`;
+                        } else {
+                            painelFiltradoHTML = '<div style="color: #888; text-align: center; padding: 20px;">Nenhum assunto encontrado.</div>';
+                        }
+                    }
+
+                    listaAssuntos.innerHTML = painelFiltradoHTML;
+                };
+
+                painel.innerHTML = painelHTML;
+
+                // Posicionar painel
+                if (resumoInput) {
+                    const rect = resumoInput.getBoundingClientRect();
+                    painel.style.left = rect.left + 'px';
+                    painel.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+                }
+
+                document.body.appendChild(painel);
+                toggleBtn.classList.add('active');
+            });
+        }
+
+        // Função global para selecionar assunto
+        window.selecionarAssunto = function(assunto) {
+            const resumoInput = document.getElementById('resumoInput');
+            const painel = document.getElementById('painelAssuntos');
+            const toggleBtn = document.getElementById('toggleBuscaBtn');
+
+            if (resumoInput) {
+                resumoInput.value = assunto;
+            }
+            if (painel) {
+                painel.remove();
+            }
+            if (toggleBtn) {
+                toggleBtn.classList.remove('active');
+            }
+        };
+
+        // Fechar painel ao clicar fora
+        document.addEventListener('click', function(e) {
+            const painel = document.getElementById('painelAssuntos');
+            const toggleBtn = document.getElementById('toggleBuscaBtn');
+            if (painel && !painel.contains(e.target) && e.target !== toggleBtn) {
+                painel.remove();
+                if (toggleBtn) toggleBtn.classList.remove('active');
+            }
+        });
+    });
+    </script>
     <script type="module" src="script.js"></script>
     <script>
     // Configuração da API Supabase  
