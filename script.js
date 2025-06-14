@@ -1,3 +1,5 @@
+import { assuntosPadronizados } from './data.js';
+
 // Dados inline para teste
 const assuntosPadronizadosTabela = [
   {
@@ -65,7 +67,7 @@ const CAMPOS_FIXOS = {
 };
 
 function gerarJiraTemplate(dados) {
-  return `Status\n${CAMPOS_FIXOS.status}\nResolução até\n${CAMPOS_FIXOS.resolucaoAte}\nUsuário Afetado\n${CAMPOS_FIXOS.usuarioAfetado}\nTelefone\n${CAMPOS_FIXOS.telefone}\nRamal\n${CAMPOS_FIXOS.ramal}\nEmail\n${CAMPOS_FIXOS.email}\nNotas\n\n${dados.notas}\nData do Registro\n${dados.dataRegistro}\nChamado do NAPJe que originou a issue\n\n${dados.chamadoNapje}\n\n* Servidor responsável pela abertura da Issue\n\n${dados.servidorResponsavel}\n\n*Tipo de Pendência\n${dados.tipoPendencia}\n*Resumo\n\n${dados.resumo}\n\n*Versão\n\n${dados.versao}\n\n*Urgência\n\n${dados.urgencia}\n\n*Subsistema\n${dados.subsistema}\n*Ambiente\n${dados.ambiente}\n*Perfil/CPF/Nome completo do usuário\n\n${dados.nomeCompleto}/${dados.perfil}/${dados.cpf}/${dados.ojSelect || ''}\n\nNúmero dos processos\n\n${dados.numeroProcessos || ''}\n\nAnexos\n${dados.anexos || ''}`;
+  return `─────────────────────────────\nNOTAS\n─────────────────────────────\n${dados.notas}\n\n─────────────────────────────\nDATA DO REGISTRO\n─────────────────────────────\n${dados.dataRegistro}\n\n─────────────────────────────\nCHAMADO DO NAPJe\n─────────────────────────────\n${dados.chamadoNapje}\n\n─────────────────────────────\nSERVIDOR RESPONSÁVEL\n─────────────────────────────\n${dados.servidorResponsavel}\n\n─────────────────────────────\nTIPO DE PENDÊNCIA\n─────────────────────────────\n${dados.tipoPendencia}\n\n─────────────────────────────\nRESUMO\n─────────────────────────────\n${dados.resumo}\n\n─────────────────────────────\nVERSÃO\n─────────────────────────────\n${dados.versao}\n\n─────────────────────────────\nURGÊNCIA\n─────────────────────────────\n${dados.urgencia}\n\n─────────────────────────────\nSUBSISTEMA\n─────────────────────────────\n${dados.subsistema}\n\n─────────────────────────────\nAMBIENTE\n─────────────────────────────\n${dados.ambiente}\n\n─────────────────────────────\nPERFIL/CPF/NOME COMPLETO DO USUÁRIO\n─────────────────────────────\n${dados.nomeCompleto} / ${dados.perfil} / ${dados.cpf} / ${dados.ojSelect || ''}\n\n─────────────────────────────\nÓRGÃO JULGADOR\n─────────────────────────────\n${dados.ojSelect || ''}\n\n─────────────────────────────\nNÚMEROS DOS PROCESSOS\n─────────────────────────────\n${dados.numeroProcessos || ''}\n\n─────────────────────────────`;
 }
 
 // Substituir o select de resumo por um autocomplete customizado
@@ -91,7 +93,7 @@ function criarAutocompleteResumo() {
     painelResumo.style.position = 'absolute';
     painelResumo.style.background = '#fff';
     painelResumo.style.zIndex = 1000;
-    painelResumo.style.maxHeight = '350px';
+    painelResumo.style.maxHeight = '80vh';
     painelResumo.style.overflowY = 'auto';
     painelResumo.style.minWidth = '340px';
     painelResumo.style.maxWidth = '420px';
@@ -99,59 +101,43 @@ function criarAutocompleteResumo() {
     painelResumo.style.border = '1.5px solid #2c5aa0';
     painelResumo.style.padding = '18px 18px 10px 18px';
 
-    let encontrou = false;
-
-    // Verificar se os dados estão disponíveis
-    if (!assuntosPadronizadosTabela || !Array.isArray(assuntosPadronizadosTabela)) {
+    // Usar a lista completa de assuntos
+    if (!assuntosPadronizados || !Array.isArray(assuntosPadronizados)) {
       painelResumo.innerHTML = '<div style="color:#888">Dados não carregados. Recarregue a página.</div>';
       document.body.appendChild(painelResumo);
       return;
     }
 
-    assuntosPadronizadosTabela.forEach(grupo => {
-      // Filtrar assuntos por texto digitado
-      const assuntosFiltrados = grupo.assuntos.filter(a => a.toLowerCase().includes(filtro.toLowerCase()));
-      if (assuntosFiltrados.length > 0) {
-        encontrou = true;
-        const cat = document.createElement('div');
-        cat.style.marginBottom = '12px';
-        const catTitle = document.createElement('div');
-        catTitle.textContent = grupo.categoria;
-        catTitle.style.fontWeight = 'bold';
-        catTitle.style.color = '#2c5aa0';
-        catTitle.style.marginBottom = '4px';
-        catTitle.style.fontSize = '1.04rem';
-        cat.appendChild(catTitle);
-        assuntosFiltrados.forEach(assunto => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.textContent = assunto;
-          btn.style.display = 'block';
-          btn.style.width = '100%';
-          btn.style.textAlign = 'left';
-          btn.style.marginBottom = '2px';
-          btn.style.background = '#f4f7fb';
-          btn.style.border = '1px solid #e0e6ed';
-          btn.style.borderRadius = '6px';
-          btn.style.padding = '6px 10px';
-          btn.style.cursor = 'pointer';
-          btn.style.fontSize = '0.98rem';
-          btn.style.color = '#2c5aa0';
-          btn.addEventListener('click', function() {
-            resumoInput.value = assunto;
-            painelResumo.remove();
-            painelResumo = null;
-            // Remover classe active do botão da lupa
-            const toggleBtn = document.getElementById('toggleBuscaBtn');
-            if (toggleBtn) toggleBtn.classList.remove('active');
-          });
-          btn.addEventListener('mousedown', e => e.preventDefault());
-          cat.appendChild(btn);
+    // Filtrar assuntos por texto digitado
+    const assuntosFiltrados = assuntosPadronizados.filter(a => a.toLowerCase().includes(filtro.toLowerCase()));
+    if (assuntosFiltrados.length > 0) {
+      assuntosFiltrados.forEach(assunto => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = assunto;
+        btn.style.display = 'block';
+        btn.style.width = '100%';
+        btn.style.textAlign = 'left';
+        btn.style.marginBottom = '2px';
+        btn.style.background = '#f4f7fb';
+        btn.style.border = '1px solid #e0e6ed';
+        btn.style.borderRadius = '6px';
+        btn.style.padding = '6px 10px';
+        btn.style.cursor = 'pointer';
+        btn.style.fontSize = '0.98rem';
+        btn.style.color = '#2c5aa0';
+        btn.addEventListener('click', function() {
+          resumoInput.value = assunto;
+          painelResumo.remove();
+          painelResumo = null;
+          // Remover classe active do botão da lupa
+          const toggleBtn = document.getElementById('toggleBuscaBtn');
+          if (toggleBtn) toggleBtn.classList.remove('active');
         });
-        painelResumo.appendChild(cat);
-      }
-    });
-    if (!encontrou) {
+        btn.addEventListener('mousedown', e => e.preventDefault());
+        painelResumo.appendChild(btn);
+      });
+    } else {
       painelResumo.innerHTML = '<div style="color:#888">Nenhum assunto encontrado.</div>';
     }
     // Posicionar painel abaixo do input
