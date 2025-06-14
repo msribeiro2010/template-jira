@@ -9,7 +9,7 @@ export const assuntosPadronizados = [
   "Advogado – Painel do Advogado / Procurador – Erro",
   "Agrupadores – Erro",
   "Área de Zoneamento – Erro em Configuração do Oficial de Justiça",
-  "Assinador não Carrega – Não ativa o botão "Entrar"",
+  "Assinador não Carrega – Não ativa o botão Entrar",
   "Assinatura de Acórdão – Erro",
   "Assinatura de Ata – Erro",
   "Assuntos da Ação – Competência",
@@ -194,7 +194,7 @@ export const assuntosPadronizadosTabela = [
   {
     categoria: "Assinatura e Certificação",
     assuntos: [
-      "Assinador não Carrega – Não ativa o botão "Entrar"",
+      "Assinador não Carrega – Não ativa o botão Entrar",
       "Assinatura de Acórdão – Erro",
       "Assinatura de Ata – Erro",
       "Ata de Audiência – Erro de Assinatura",
